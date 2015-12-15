@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/ctype.js | CTypeJS library API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/Voronar/ctype-js.git" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-arrayToBuffer">arrayToBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-bufferToArray">bufferToArray</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-bufferToStruct">bufferToStruct</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-float32">float32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-float64">float64</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-int16">int16</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-int32">int32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-int8">int8</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-struct">struct</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-structToBuffer">structToBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-uint16">uint16</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-uint32">uint32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-uint8">uint8</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-FLOAT32_SIZE">FLOAT32_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-FLOAT64_SIZE">FLOAT64_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-INT16_SIZE">INT16_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-INT32_SIZE">INT32_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-INT8_SIZE">INT8_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UINT16_SIZE">UINT16_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UINT32_SIZE">UINT32_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UINT8_SIZE">UINT8_SIZE</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/ctype.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">/**
+ * @file src/ctype.js
+ * @module ctype
+ */
+
+&quot;use strict&quot;;
+/**
+ * Tests an variable is being an JavaScript object type
+ * @param  {Object} object Testing object value
+ * @return {Boolean}      Is a variable a JavaScript object
+ */
+function isObject(object)
+{
+  return (typeof object === &quot;object&quot;);
+}
+/**
+ * Does deep copy of an object
+ * @param {Object} destObj Destination object
+ * @param {Object} srcObj  Source object
+ */
+function copyObject(destObj, srcObj)
+{
+  if(destObj)
+  {
+    if(!isObject(destObj) || destObj === null)
+    {
+      throw new Error(&quot;[CType] &apos;copyObject&apos; function: &quot; + &quot;a destination object &apos;&quot; + destObj.toString() + &quot;&apos; must have an object type&quot;);
+    }
+
+    for(let it in srcObj)
+    {
+      if(!isObject(srcObj[it]) || srcObj[it] === null)
+      {
+        destObj[it] = srcObj[it];
+      }
+      if(isObject(srcObj[it]) &amp;&amp; srcObj[it] !== null &amp;&amp; srcObj[it].length !== undefined)
+      {
+        destObj[it] = new window[srcObj[it].constructor.name](srcObj[it].length);
+        allocateArray(destObj[it], srcObj[it]);
+        continue;
+      }
+      if(isObject(srcObj[it]) &amp;&amp; srcObj[it] !== null)
+      {
+        destObj[it] = {};
+        copyObject(destObj[it], srcObj[it]);
+      }
+    }
+  }
+  else
+  {
+    throw new Error(&quot;[CType] &apos;copyObject&apos; function: set a non-empty parameter: [object]&quot;);
+  }
+}
+
+function allocateArray(destArr, srcArr)
+{
+  let l = srcArr.length;
+
+  if(destArr)
+  {
+    if(!isObject(destArr) || destArr.length === undefined || destArr === null)
+    {
+      throw new Error(&quot;[CType] &apos;allocateArray&apos; function: &quot; + &quot;a destination object &apos;&quot; + destArr.toString() + &quot;&apos; must have an array type&quot;);
+    }
+
+    for(let it = 0; it &lt; l; ++it)
+    {
+      if(isObject(srcArr[it]) &amp;&amp; srcArr[it] !== null &amp;&amp; srcArr[it].length !== undefined)
+      {
+        destArr[it] = new window[srcArr[it].constructor.name](srcArr[it].length);
+        allocateArray(destArr[it], srcArr[it]);
+        continue;
+      }
+      if(isObject(srcArr[it]) &amp;&amp; srcArr[it] !== null)
+      {
+        destArr[it] = {};
+        copyObject(destArr[it], srcArr[it]);
+      }
+    }
+  }
+  else
+  {
+    throw new Error(&quot;[CType] &apos;allocateArray&apos; function: set a non-empty parameter: [array]&quot;);
+  }
+}
+
+/**
+ * Gets a size of source structure
+ * @param  {Object} srcStruct Source structure
+ * @param  {Number} totalSize Total size in bytes
+ */
+function getStructSize(srcStruct, totalSize)
+{
+  let isEmpty = false;
+
+  for(let field in srcStruct)
+  {
+    let fieldValue = srcStruct[field];
+    isEmpty        = false;
+
+    if(!isObject(fieldValue) &amp;&amp; !fieldValue.BYTES_PER_ELEMENT &amp;&amp; !srcStruct.byteLength)
+    {
+      throw new Error(&quot;[ctype] &apos;struct&apos; function: invalid structure field &apos;&quot; + field + &quot;:&quot; + fieldValue + &quot;&apos;&quot;);
+    }
+
+    if(!fieldValue.BYTES_PER_ELEMENT)
+    {
+      if(fieldValue.length)
+      {
+        for(let i = 0; i &lt; fieldValue.length; ++i)
+        {
+          if(isObject(fieldValue[i]))
+          {
+            getStructSize(fieldValue[i], totalSize);
+          }
+        }
+      }
+      else
+      {
+        if(isObject(fieldValue))
+        {
+          getStructSize(fieldValue, totalSize);
+        }
+      }
+    }
+    else
+    {
+      totalSize.value += fieldValue.byteLength;
+    }
+  }
+
+  if(isEmpty)
+  {
+    throw new Error(&quot;[ctype] &apos;struct&apos; function: invalid structure field - an empty object&quot;);
+  }
+}
+/**
+ * uint8(Uint8Array) type byte length
+ * @type {Number}
+ */
+export const UINT8_SIZE  = Uint8Array.BYTES_PER_ELEMENT;
+/**
+ * uint16(Uint16Array) type byte length
+ * @type {Number}
+ */
+export const UINT16_SIZE = Uint16Array.BYTES_PER_ELEMENT;
+/**
+ * uint32(Uint32Array) type byte length
+ * @type {Number}
+ */
+export const UINT32_SIZE   = Uint32Array.BYTES_PER_ELEMENT;
+/**
+ * int8(Int8Array) type byte length
+ * @type {Number}
+ */
+export const INT8_SIZE   = Int8Array.BYTES_PER_ELEMENT;
+/**
+ * int16(Int16Array) type byte length
+ * @type {Number}
+ */
+export const INT16_SIZE  = Int16Array.BYTES_PER_ELEMENT;
+/**
+ * int32(Uint32Array) type byte length
+ * @type {Number}
+ */
+export const INT32_SIZE    = Int32Array.BYTES_PER_ELEMENT;
+/**
+ * float32(Float32Array) type byte length
+ * @type {Number}
+ */
+export const FLOAT32_SIZE  = Float32Array.BYTES_PER_ELEMENT;
+/**
+ * float64(Float64Array) type byte length
+ * @type {Number}
+ */
+export const FLOAT64_SIZE = Float64Array.BYTES_PER_ELEMENT;
+/**
+ * Returns new &apos;unsigned char array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Uint8Array}      Unsigned 8-byte integer array
+ */
+export function uint8(size = 1)
+{
+  let ctype = new Uint8Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;unsigned short array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Uint16Array}     Unsigned 16-byte integer array
+ */
+export function uint16(size = 1)
+{
+  let ctype = new Uint16Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;unsigned int array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Uint32Array}     Unsigned 32-byte integer array
+ */
+export function uint32(size = 1)
+{
+  let ctype = new Uint32Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;char array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Int8Array}       Signed 8-byte integer array
+ */
+export function int8(size = 1)
+{
+  let ctype = new Int8Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;short array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Int16Array}      Signed 16-byte integer array
+ */
+export function int16(size = 1)
+{
+  let ctype = new Int16Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;int array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Int32Array}      Signed 32-byte integer array
+ */
+export function int32(size = 1)
+{
+  let ctype = new Int32Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;float array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Float32Array}    Signed 32-byte floating point array
+ */
+export function float32(size = 1)
+{
+  let ctype = new Float32Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;double array[size]&apos; C equivalent
+ * @param  {Number} size=1 Array length
+ * @return {Float64Array}    Signed 64-byte floating point array
+ */
+export function float64(size = 1)
+{
+  let ctype = new Float64Array(size);
+  return ctype;
+}
+/**
+ * Returns new &apos;struct s[size]&apos; C equivalent with &apos;byteLength&apos; field is a total size of structure
+ * @param  {Object} srcStruct Empty source object
+ * @param  {Number} size=1    Array length
+ * @return {Object}           Object structure with typed fields
+ */
+export function struct(srcStruct, size = 1)
+{
+  if(!isObject(srcStruct) || (typeof size !== &quot;number&quot;))
+  {
+    throw new Error(&quot;[ctype] &apos;struct&apos; function: invalid arguments (Object srcStruct, Number size)&quot;);
+  }
+
+  let totalSize = { value: 0 };
+
+  getStructSize(srcStruct, totalSize);
+
+  if(size &gt; 1)
+  {
+    let dstStructs = [];
+    for(let i = 0; i &lt; size; ++i)
+    {
+      dstStructs[i] = {};
+      copyObject(dstStructs[i], srcStruct);
+
+      Object.defineProperty(dstStructs[i], &quot;byteLength&quot;,
+      {
+        value       : totalSize.value,
+        writable    : false,
+        enumerable  : true,
+        configurable: false
+      });
+    }
+    return dstStructs;
+  }
+  else
+  {
+    let dstStruct = {};
+    copyObject(dstStruct, srcStruct);
+
+    Object.defineProperty(dstStruct, &quot;byteLength&quot;,
+    {
+      value       : totalSize.value,
+      writable    : false,
+      enumerable  : true,
+      configurable: false
+    });
+
+    return dstStruct;
+  }
+
+  return null;
+}
+/**
+ * Sets data from a source buffer to a destination structure
+ * @param {Object}      dstStruct    Destination structure
+ * @param {ArrayBuffer} srcBuffer    Source buffer
+ * @param {Number}      totalOffset  Total offset in bytes
+ * @param {Boolean}     littleEndian Little-endian bytes order flag
+ */
+function setBufferToStruct(dstStruct, srcBuffer, totalOffset, littleEndian)
+{
+  for(let field in dstStruct)
+  {
+    let fieldValue = dstStruct[field];
+
+    if(fieldValue.constructor.name === &quot;Array&quot;)
+    {
+      let l = fieldValue.length;
+
+      for(let i = 0; i &lt; l; ++i)
+      {
+        setBufferToStruct(fieldValue[i], srcBuffer, totalOffset, littleEndian);
+      }
+    }
+    else
+    {
+      if(fieldValue.constructor.name === &quot;Object&quot;)
+      {
+        setBufferToStruct(fieldValue, srcBuffer, totalOffset, littleEndian);
+      }
+      else
+      {
+        let l = fieldValue.length;
+
+        switch(fieldValue.constructor.name)
+        {
+          case &quot;Uint8Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getUint8(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Uint16Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getUint16(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Uint32Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getUint32(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Int8Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getInt8(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Int16Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getInt16(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Int32Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getInt32(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Float32Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getFloat32(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Float64Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              fieldValue[i] = srcBuffer.getFloat64(totalOffset.value, littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+        }
+      }
+    }
+  }
+}
+/**
+ * Sets data from source structure to destination buffer
+ * @param  {ArrayBuffer} dstBuffer    Destination buffer
+ * @param  {Object}      srcStruct    Source structure
+ * @param  {Number}      totalOffset  Total offset in bytes
+ * @param  {Boolean}     littleEndian Little-endian bytes order flag
+ */
+function setStructToBuffer(dstBuffer, srcStruct, totalOffset, littleEndian)
+{
+  for(let field in srcStruct)
+  {
+    let fieldValue = srcStruct[field];
+
+    if(fieldValue.constructor.name === &quot;Array&quot;)
+    {
+      let l = fieldValue.length;
+
+      for(let i = 0; i &lt; l; ++i)
+      {
+        setStructToBuffer(dstBuffer, fieldValue[i], totalOffset, littleEndian);
+      }
+    }
+    else
+    {
+      if(fieldValue.constructor.name === &quot;Object&quot;)
+      {
+        setStructToBuffer(dstBuffer, fieldValue, totalOffset, littleEndian);
+      }
+      else
+      {
+        let l = fieldValue.length;
+
+        switch(fieldValue.constructor.name)
+        {
+          case &quot;Uint8Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setUint8(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Uint16Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setUint16(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Uint32Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setUint32(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Int8Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setInt8(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Int16Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setInt16(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Int32Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setInt32(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Float32Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setFloat32(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+
+          case &quot;Float64Array&quot;:
+            for(let i = 0; i &lt; l; ++i)
+            {
+              dstBuffer.setFloat64(totalOffset.value, fieldValue[i], littleEndian &amp;&amp; true);
+              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;
+            }
+          break;
+        }
+      }
+    }
+  }
+}
+/**
+ * Copies a source buffer to a destination structure
+ * @param  {ArrayBuffer}     srcBuffer         Source buffer
+ * @param  {Object|Object[]} dstStruct         Destination structure or array of structures
+ * @param  {Number}          byteOffset=0      Byte offset from a start of a source buffer
+ * @param  {Boolean}         littleEndian=true Little-endian bytes order flag
+ * @return {Object}                            Destination structure reference
+ */
+export function bufferToStruct(srcBuffer, dstStruct, byteOffset = 0, littleEndian = true)
+{
+  if(!isObject(dstStruct) || !(srcBuffer instanceof ArrayBuffer) || (typeof byteOffset !== &quot;number&quot;) || (typeof littleEndian !== &quot;boolean&quot;))
+  {
+    throw new Error(&quot;[ctype] &apos;bufferToStruct&apos; function: invalid arguments in the signature (ArrayBuffer srcBuffer, Object dstStruct, Number byteOffset = 0, Boolean littleEndian = true)&quot;);
+  }
+
+  let srcBuf;
+
+  try
+  {
+    srcBuf = new DataView(srcBuffer, byteOffset);
+  }
+  catch(e)
+  {
+    console.log(e);
+    return;
+  }
+
+  let totalOffset  = { value: 0 };
+
+  setBufferToStruct(dstStruct, srcBuf, totalOffset, littleEndian);
+
+  return dstStruct;
+}
+/**
+ * Copies a source structure to a destination buffer
+ * @param  {Object|Object[]} srcStruct      Source structure or array of structures
+ * @param  {ArrayBuffer} existedBuffer=null Existed buffer
+ * @param  {Number} byteOffset=0            Byte offset from a start of a source buffer
+ * @param  {Number} littleEndian=true       Little-endian bytes order flag
+ * @return {ArrayBuffer}                    Destination buffer reference
+ */
+export function structToBuffer(srcStruct, existedBuffer = null, byteOffset = 0, littleEndian = true)
+{
+  if(!isObject(srcStruct) ||
+     (!(existedBuffer instanceof ArrayBuffer) &amp;&amp; existedBuffer !== null) ||
+     (typeof byteOffset !== &quot;number&quot;) ||
+     (typeof littleEndian !== &quot;boolean&quot;))
+  {
+    throw new Error(&quot;[ctype] &apos;structToBuffer&apos; function: invalid arguments in the signature (Object srcStruct, ArrayBuffer existedBuffer = null, Number byteOffset = 0, Boolean littleEndian = true)&quot;);
+  }
+
+  let totalOffset = { value: 0 };
+  let arrayBuffer, dstBuffer;
+
+  if(existedBuffer === null)
+  {
+    if(srcStruct instanceof Array)
+    {
+      let l = srcStruct.length;
+
+      arrayBuffer = new ArrayBuffer(srcStruct[0].byteLength * l);
+      dstBuffer   = new DataView   (arrayBuffer);
+    }
+    else
+    {
+      arrayBuffer = new ArrayBuffer(srcStruct.byteLength);
+      dstBuffer   = new DataView   (arrayBuffer);
+    }
+
+    setStructToBuffer(dstBuffer, srcStruct, totalOffset, littleEndian);
+  }
+  else
+  {
+    dstBuffer = new DataView(existedBuffer, byteOffset);
+
+    setStructToBuffer(dstBuffer, srcStruct, totalOffset, littleEndian);
+  }
+
+  return dstBuffer.buffer;
+}
+/**
+ * Sets data from a source typed array to a destination buffer
+ * @param {Array} srcArray        Source typed array
+ * @param {ArrayBuffer} dstBuffer Destination buffer
+ * @param {Number} length         Byte length for copying from a source typed array
+ * @param {Number} byteOffset     Byte offset from a start of a source typed array
+ * @param {Number} totalOffset    Total offset in bytes
+ * @param {Boolean} littleEndian  Little-endian bytes order flag
+ */
+function setArrayToBuffer(srcArray, dstBuffer, length, totalOffset, littleEndian)
+{
+  let l;
+  let i = totalOffset.value / srcArray.BYTES_PER_ELEMENT;
+
+  if(isNaN(length))
+  {
+    if(dstBuffer.byteLength &gt; srcArray.byteLength ||
+       dstBuffer.byteLength === srcArray.byteLength)
+    {
+      l = srcArray.length;
+    }
+    else
+    {
+      l = dstBuffer.byteLength / srcArray.BYTES_PER_ELEMENT;
+    }
+  }
+  else
+  {
+    l = length / srcArray.BYTES_PER_ELEMENT + totalOffset.value / srcArray.BYTES_PER_ELEMENT;
+  }
+
+  switch(srcArray.constructor.name)
+  {
+    case &quot;Uint8Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setUint8(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Uint16Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setUint16(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Uint32Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setUint32(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Int8Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setInt8(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Int16Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setInt16(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Int32Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setInt32(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Float32Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setFloat32(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Float64Array&quot;:
+      for(; i &lt; l; ++i)
+      {
+        dstBuffer.setFloat64(totalOffset.value, srcArray[i], littleEndian &amp;&amp; true);
+        totalOffset.value += srcArray.BYTES_PER_ELEMENT;
+      }
+    break;
+  }
+}
+/**
+ * Sets data from a source buffer array to a destination typed array
+ * @param {ArrayBuffer} srcBuffer Sorce buffer
+ * @param {Array} dstArray        Destination typed array
+ * @param {Number} length         Byte length for copying from a source buffer
+ * @param {Number} totalOffset    Total offset in bytes
+ * @param {Boolean} littleEndian  Little-endian bytes order flag
+ */
+function setBufferToArray(srcBuffer, dstArray, length, totalOffset, littleEndian)
+{
+  let l;
+
+  if(isNaN(length))
+  {
+    if(srcBuffer.byteLength &gt; dstArray.byteLength ||
+       srcBuffer.byteLength === dstArray.byteLength)
+    {
+      l = dstArray.length;
+    }
+    else
+    {
+      l = srcBuffer.byteLength / dstArray.BYTES_PER_ELEMENT;
+    }
+  }
+  else
+  {
+    l = length / dstArray.BYTES_PER_ELEMENT;
+  }
+
+  switch(dstArray.constructor.name)
+  {
+    case &quot;Uint8Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getUint8(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Uint16Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getUint16(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Uint32Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getUint32(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Int8Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getInt8(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Int16Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getInt16(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Int32Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getInt32(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Float32Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getFloat32(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+
+    case &quot;Float64Array&quot;:
+      for(let i = 0; i &lt; l; ++i)
+      {
+        dstArray[i] = srcBuffer.getFloat64(totalOffset.value, littleEndian &amp;&amp; true);
+        totalOffset.value += dstArray.BYTES_PER_ELEMENT;
+      }
+    break;
+  }
+}
+/**
+ * Copies a source buffer to a destination typed array
+ * @param  {ArrayBuffer} srcBuffer         Source buffer
+ * @param  {Array}       dstArray          Destination typed array
+ * @param  {Number}      byteOffset=0      Byte offset from a start of a source buffer
+ * @param  {Number}      length=NaN        Byte length for copying from a source buffer
+ * @param  {Boolean}     littleEndian=true Little-endian bytes order flag
+ * @return {Array}                         Destination array reference
+ */
+export function bufferToArray(srcBuffer, dstArray, byteOffset = 0, length = NaN, littleEndian = true)
+{
+  if(!dstArray.BYTES_PER_ELEMENT || !(srcBuffer instanceof ArrayBuffer) ||
+     (typeof length !== &quot;number&quot; &amp;&amp; !isNaN(length)) ||
+     (typeof byteOffset !== &quot;number&quot;) || (typeof littleEndian !== &quot;boolean&quot;))
+  {
+    throw new Error(&quot;[ctype] &apos;bufferToArray&apos; function: invalid arguments in the signature (ArrayBuffer srcBuffer, TypedArray dstArray, Number length = NaN, NumberNumber offset = 0, Boolean littleEndian = true)&quot;);
+  }
+
+  if(length &lt; 0)
+  {
+    throw new Error(&quot;[ctype] &apos;bufferToArray&apos; function: the copying byte length must be a positive value&quot;);
+  }
+
+  let srcBuf      = new DataView(srcBuffer, byteOffset);
+  let totalOffset = { value: 0 };
+
+  setBufferToArray(srcBuf, dstArray, length, totalOffset, littleEndian);
+
+  return dstArray;
+}
+/**
+ * Copies a source typed array to a destination buffer
+ * @param  {Array} srcArray                 Source typed array
+ * @param  {ArrayBuffer} existedBuffer=null DesExisted buffer
+ * @param  {Number} byteOffset=0            Byte offset from a start of a source typed array
+ * @param  {Number} length=NaN              Byte length for copying from a source typed array
+ * @param  {Boolean} littleEndian=true      Little-endian bytes order flag
+ * @return {ArrayBuffer}                    Destination buffer reference
+ */
+export function arrayToBuffer(srcArray, existedBuffer = null, byteOffset = 0, length = NaN, littleEndian = true)
+{
+  if(!srcArray.BYTES_PER_ELEMENT ||
+     (!(existedBuffer instanceof ArrayBuffer) &amp;&amp; existedBuffer !== null) ||
+     (typeof length !== &quot;number&quot;) ||
+     (typeof byteOffset !== &quot;number&quot;) ||
+     (typeof littleEndian !== &quot;boolean&quot;))
+  {
+    throw new Error(&quot;[ctype] &apos;arrayToBuffer&apos; function: invalid arguments in the signature (TypedArray srcArray, ArrayBuffer existedBuffer = null, Number length = NaN, Number byteOffset = 0, Boolean littleEndian = true)&quot;);
+  }
+
+  if(length &lt; 0)
+  {
+    throw new Error(&quot;[ctype] &apos;arrayToBuffer&apos; function: the copying byte length must be a positive value&quot;);
+  }
+
+  let totalOffset = { value: byteOffset };
+  let arrayBuffer, dstBuffer;
+
+  if(existedBuffer === null)
+  {
+    arrayBuffer = new ArrayBuffer(srcArray.byteLength);
+    dstBuffer   = new DataView   (arrayBuffer);
+
+    setArrayToBuffer(srcArray, dstBuffer, length, totalOffset, littleEndian);
+  }
+  else
+  {
+    dstBuffer = new DataView(existedBuffer);
+
+    setArrayToBuffer(srcArray, dstBuffer, length, totalOffset, littleEndian);
+  }
+
+  return dstBuffer.buffer;
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.3)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

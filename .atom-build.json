@@ -1,0 +1,12 @@
+{
+  "name": "Debug build",
+  "cmd" : "gulp",
+  "targets":
+  {
+    "Doc generator":
+    {
+      "cmd" : "gulp",
+      "args": ["doc"]
+    }
+  }
+}

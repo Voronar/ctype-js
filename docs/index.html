@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl">
+  <title data-ice="title">CTypeJS library API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/Voronar/ctype-js.git" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-arrayToBuffer">arrayToBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-bufferToArray">bufferToArray</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-bufferToStruct">bufferToStruct</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-float32">float32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-float64">float64</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-int16">int16</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-int32">int32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-int8">int8</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-struct">struct</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-structToBuffer">structToBuffer</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-uint16">uint16</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-uint32">uint32</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-uint8">uint8</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-FLOAT32_SIZE">FLOAT32_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-FLOAT64_SIZE">FLOAT64_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-INT16_SIZE">INT16_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-INT32_SIZE">INT32_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-INT8_SIZE">INT8_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UINT16_SIZE">UINT16_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UINT32_SIZE">UINT32_SIZE</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-UINT8_SIZE">UINT8_SIZE</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="ctype">ctype</h1>
+<p>JavaScript library for easy working with C data types like primitive type arrays and structures.</p>
+<blockquote>
+<p><strong>Exported library(ES5) requirements:</strong></p>
+<ul>
+<li>typed arrays, <code>ArrayBuffer</code>, <code>DataView</code></li>
+</ul>
+<p><strong>Native library(ES6) requirements:</strong></p>
+<ul>
+<li>typed arrays, <code>ArrayBuffer</code>, <code>DataView</code></li>
+<li>modules</li>
+<li>default function parameters</li>
+<li>block scoping</li>
+</ul>
+</blockquote>
+<h3 id="features">Features</h3>
+<ul>
+<li>extracts C-structures and primitive type arrays to JavaScript objects and typed arrays</li>
+<li>extracts JavaScript structures(objects) and typed arrays to C-structures and primitive type arrays</li>
+</ul>
+<blockquote>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>C-structures with primitive type fields only(<code>char</code>, <code>int</code>, etc.)</li>
+<li>Fixed length C-arrays only(<code>char a[n]</code>, <code>int a[n]</code>, etc.)</li>
+<li>No pointers, no methods, no bit fields</li>
+</ul>
+</blockquote>
+<h3 id="api-documentation-voronar-github-io-ctype-js-docs-https-voronar-github-io-ctype-js-docs-">API Documentation: <a href="https://voronar.github.io/ctype-js-docs">voronar.github.io/ctype-js-docs</a></h3>
+<h3 id="installation">Installation</h3>
+<p><strong>ES5 version(global variable)</strong></p>
+<p>ES5 version of the library consists two versions: native(with a native typed arrays compability) and polyfilled(without a native typed arrays compability).<br>
+For native version just include <code>build/release/ctype.js</code> script to your HTML-file and <code>build/release/ctype.polyfilled.js</code> for polyfilled one. And then use <code>ctype</code> global object.</p>
+<blockquote>
+<p><strong>Library name conflict:</strong>
+This version of the library exports <code>ctype</code> CommonJS module to a global scope(<code>window</code> object). In case of existed <code>ctype</code> name the library will be renamed to <code>libctypejs</code>.</p>
+</blockquote>
+<p><strong>ES6 version(module)</strong></p>
+<p>ES6 version of the library is exported module. Just import module(<code>src/ctype.js</code>) and use it.</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">import * as ctype from &quot;./ctype&quot;;
+
+let structure = ctype.struct(
+{
+  field: ctype.int32(100)
+});
+
+let s = ctype.bufferToStruct(buffer, structure);</code>
+</code></pre>
+<h3 id="examples">Examples</h3>
+<blockquote>
+<p><strong>Note:</strong>
+In all examples I working with a little-endian binary buffer order.
+In case of a big-endian binary buffer order using you need to set it in all used extracting function. Just set last argument of extraction function to &apos;false&apos; value.<br>
+See function signatures in the <a href="https://voronar.github.io/ctype-js-docs">documentation</a>.</p>
+</blockquote>
+<p><strong>Extracts C-structure to JavaScript object</strong></p>
+<p>For extracting data from C to JavaScript firstable we need to convert C structure or an array to a byte array(<code>char*</code> or <code>unsigned char*</code>) for data transmission via web-socket.
+In this example I use Qt web-socket protocol implementation.</p>
+<blockquote>
+<p><strong>Warning:</strong>
+C-structures must be 1-byte aligned.</p>
+</blockquote>
+<p>Server side(C++):</p>
+<pre><code class="lang-cpp"><code class="source-code prettyprint">// Qt C++
+// Web-socket server implementation - QWebSocket(Qt websockets module)
+#pragma pack(push, 1)
+ struct SubStructure2
+ {
+   int sint;
+ };
+ struct SubStructure1
+ {
+   int sint;
+   SubStructure2 s2;
+ };
+ struct UnsignedArrays
+ {
+   unsigned char  uchar [2]; //UInt8Array
+   unsigned short ushort[2]; //UInt16Array
+   unsigned int   uint  [2]; //UInt32Array
+ };
+ struct SignedArrays
+ {
+   char   schar  [2]; //Int8Array
+   short  sshort [2]; //Int16Array
+   int    sint   [2]; //Int32Array
+   float  sfloat [2]; //Float32Array
+   double sdouble[2]; //Float64Array
+ };
+ struct Structure
+ {
+   UnsignedArrays ua[2];
+   SignedArrays   sa;
+   SubStructure1  s1;
+ };
+ #pragma pack(pop)
+
+ Structure s[2];
+ s[0].s1.s2.sint = 2015;
+
+ QByteArray raw = QByteArray((char*)&amp;s, sizeof(Structure) * 2);
+
+ webSocket-&gt;sendBinaryMessage(raw);</code>
+</code></pre>
+<blockquote>
+<p><strong>Web-socket test application:</strong>
+See testing Qt web-socket application sources in <code>src/qt-websocket</code>.</p>
+</blockquote>
+<p>Client side(JavaScript):</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">let SubStructure2 = ctype.struct(
+{
+  sint: ctype.int32()
+});
+
+let SubStructure1 = ctype.struct(
+{
+  sint: ctype.int32(),
+  s2  : ctype.struct(SubStructure2)
+});
+
+let UnsignedArrays = ctype.struct(
+{
+  uchar : ctype.uint8 (2),
+  ushort: ctype.uint16(2),
+  uint  : ctype.uint32(2)
+});
+
+let SignedArrays = ctype.struct(
+{
+  schar  : ctype.int8   (2),
+  sshort : ctype.int16  (2),
+  sint   : ctype.int32  (2),
+  sfloat : ctype.float32(2),
+  sdouble: ctype.float64(2),
+});
+
+let Structure = ctype.struct(
+{
+  ua: ctype.struct(UnsignedArrays, 2),
+  sa: ctype.struct(SignedArrays),
+  s1: ctype.struct(SubStructure1)
+});
+
+webSocket.onmessage = function(e)
+{
+  let data = e.data;
+
+  let s1   = ctype.struct(Structure, 2);
+  let rec1 = ctype.bufferToStruct(data,//source binary buffer
+                                  s1); //destination structure or array of structures
+
+  console.log(rec1[0].s1.s2.sint[0]); //2015
+}</code>
+</code></pre>
+<blockquote>
+<p><strong>Variables and arrays:</strong>
+C-structure single field like <code>int i;</code> equals to <code>i: int32(1)</code> typed array in JavaScript.</p>
+</blockquote>
+<p><strong>Extracts C-structure to JavaScript object with an offset from a source binary buffer</strong></p>
+<p>In this example we extract a second structure from array of two structures.</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">//data preparation...
+let s2   = ctype.struct(Structure);
+let rec2 = ctype.bufferToStruct(data,                 //source binary buffer
+                                s2,                   //destination structure
+                                Structure.byteLength);//byte offset</code>
+</code></pre>
+<blockquote>
+<p><strong>JavaScript structure feature:</strong>
+All <code>struct</code> structures has <code>byteLength</code> field is a total byte length of the structure.
+Then you dynamically add structure property you need to repack the updated structure in order to update <code>byteLength</code> property.<br></p>
+<pre><code class="lang-js"><code class="source-code prettyprint">let structure = ctype.struct(
+{
+ field1: ctype.int32(100)
+});
+
+structure.field2 = ctype.float32(10); //Invalid &apos;byteLength&apos; value. Structure need to be updated.
+let updatedStructure = ctype.struct(structure);</code>
+</code></pre>
+</blockquote>
+<p><strong>Extracts C-array to JavaScript typed array</strong></p>
+<p>In this example we extract C-array to JavaScript typed array with an offset from a source binary buffer and with a specified byte length value of a source binary buffer.</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">//data preparation...
+let sfloatArray = ctype.float32(2);
+let offset      = UnsignedArrays.byteLength * 2 + SignedArrays.schar.byteLength * 2 + SignedArrays.sshort.byteLength * 2 + SignedArrays.byteLength * 2;
+let length      = 2 * ctype.FLOAT32_SIZE;
+let rec3        = ctype.bufferToArray(data,       //source binary buffer
+                                      sfloatArray,//destination array
+                                      offset,     //byte offset
+                                      length);    //byte length</code>
+</code></pre>
+<blockquote>
+<p><strong>&apos;bufferToArray&apos; function using:</strong>
+We can extract an array without specified offset and length.
+In this case the offset value will be equal to zero and the length will be automatically calculated by a special algorithm.<br>
+If a source buffer byte length more than a destination array byte length or equal to it then the byte length value will be equal to the destination array byte length.<br>
+Else the byte length value will be equal to the source buffer byte length.</p>
+<p><strong>JavaScript typed array limitation:</strong>
+When we use multidimensional C-arrays(<code>int array[x][y][z];</code>) we can&apos;t use the same array accessing notation with JavaScript typed arrays.
+<code>console.log(array[0][0][0]);</code> will not work correctly.<br>
+In this case we can manually calculate a required array index or use some libraries like <a href="https://github.com/scijs/ndarray">ndarray</a>.</p>
+</blockquote>
+<p><strong>Extracts JavaScript structure to C-structure(without an existed binary buffer)</strong></p>
+<p>Client side(JavaScript):</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">//data preparation...
+let s             = ctype.struct(Structure, 2);
+s[1].sa.sfloat[0] = 3.1415;
+let sendData      = ctype.structToBuffer(s/*source structure*/);
+webSocket.send(sendData);</code>
+</code></pre>
+<p>Server side(C++):</p>
+<pre><code class="lang-cpp"><code class="source-code prettyprint">void MainWindow::processBinaryMessage(QByteArray message)
+{
+  QWebSocket *pClient = qobject_cast&lt;QWebSocket*&gt;(sender());
+
+  Structure s[2];
+
+  memcpy(&amp;s, message.constData(), sizeof(Structure) * 2);
+  qDebug() &lt;&lt; s1[1].sa.sfloat[0]; //3.1415
+}</code>
+</code></pre>
+<p><strong>Extracts JavaScript structure to C-structure(with an existed binary buffer)</strong></p>
+<pre><code class="lang-js"><code class="source-code prettyprint">//data preparation...
+let existedBuffer = new ArrayBuffer(Structure.byteLength * 2);
+
+let sendData = ctype.structToBuffer(rec2,                 //source structure or array of structures
+                                    existedBuffer,        //existed binary buffer
+                                    Structure.byteLength);//byte offset from an existed binary buffer
+
+webSocket.send(sendData);</code>
+</code></pre>
+<p><strong>Extracts JavaScript typed array to C-array(without an existed binary buffer)</strong></p>
+<p>Client side(JavaScript):</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">let array = ctype.float64(10 * 10 * 10);
+array.map(function(value, index, array)
+{
+  array[index] = -200.200;
+});
+let sendData = ctype.arrayToBuffer(array/*source array*/);
+webSocket.send(sendData);</code>
+</code></pre>
+<p>Server side(C++):</p>
+<pre><code class="lang-cpp"><code class="source-code prettyprint">void MainWindow::processBinaryMessage(QByteArray message)
+{
+  QWebSocket *pClient = qobject_cast&lt;QWebSocket*&gt;(sender());
+
+  double array[10][10][10];
+
+  memcpy(array, message.constData(), sizeof(array));
+  qDebug() &lt;&lt; array[9][9][9]; //-200.200
+}</code>
+</code></pre>
+<p><strong>Extracts JavaScript typed array to C-array(with an existed binary buffer)</strong></p>
+<p>In this example we extract JavaScript typed array to C-array with an offset from a source typed array and with a specified byte length value of a source JavaScript typed array.</p>
+<p>Client side(JavaScript):</p>
+<pre><code class="lang-js"><code class="source-code prettyprint">let existedBuffer = new ArrayBuffer(1000 * ctype.FLOAT64_SIZE);
+let array = ctype.float64(1000);
+array.map(function(value, index, array)
+{
+  if(index &gt; 499)
+  {
+    array[index] = -200.200;
+  }
+  else
+  {
+    array[index] = - 100.100;
+  }
+});
+
+ctype.arrayToBuffer(array,                     //source array
+                    existedBuffer,             //existed binary buffer
+                    0,                         //byte offset
+                    500 * ctype.FLOAT64_SIZE);//byte length
+
+ctype.arrayToBuffer(array, existedBuffer, 500 * ctype.FLOAT64_SIZE, 500 * ctype.FLOAT64_SIZE);
+let sendData = existedBuffer;
+socket.send(sendData);</code>
+</code></pre>
+<blockquote>
+<p><strong>&apos;arrayToBuffer&apos; function using:</strong>
+We can extract an array without specified offset and length.
+In this case the offset value will be equal to zero and the length will be automatically calculated by a special algorithm.<br>
+If a source array byte length more than a destination buffer byte length or equal to it then the byte length value will be equal to the destination buffer byte length.<br>
+Else the byte length value will be equal to the source array byte length.</p>
+</blockquote>
+<p>Server side(C++):</p>
+<pre><code class="lang-cpp"><code class="source-code prettyprint">void MainWindow::processBinaryMessage(QByteArray message)
+{
+  QWebSocket *pClient = qobject_cast&lt;QWebSocket*&gt;(sender());
+
+  double array[1000];
+
+  memcpy(array, message.constData(), sizeof(array));
+  qDebug() &lt;&lt; array[0];   //-100.100
+  qDebug() &lt;&lt; array[500]; //-200.200
+}</code>
+</code></pre>
+<h3 id="have-a-nice-code-">Have a nice code!</h3>
+</div>
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.3)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

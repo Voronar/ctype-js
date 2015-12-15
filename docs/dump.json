@@ -1,0 +1,1981 @@
+[
+  {
+    "__docId__": 0,
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/ctype.js",
+    "memberof": null,
+    "longname": "src/ctype.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 6,
+    "content": "/**\n * @file src/ctype.js\n * @module ctype\n */\n\n\"use strict\";\n/**\n * Tests an variable is being an JavaScript object type\n * @param  {Object} object Testing object value\n * @return {Boolean}      Is a variable a JavaScript object\n */\nfunction isObject(object)\n{\n  return (typeof object === \"object\");\n}\n/**\n * Does deep copy of an object\n * @param {Object} destObj Destination object\n * @param {Object} srcObj  Source object\n */\nfunction copyObject(destObj, srcObj)\n{\n  if(destObj)\n  {\n    if(!isObject(destObj) || destObj === null)\n    {\n      throw new Error(\"[CType] 'copyObject' function: \" + \"a destination object '\" + destObj.toString() + \"' must have an object type\");\n    }\n\n    for(let it in srcObj)\n    {\n      if(!isObject(srcObj[it]) || srcObj[it] === null)\n      {\n        destObj[it] = srcObj[it];\n      }\n      if(isObject(srcObj[it]) && srcObj[it] !== null && srcObj[it].length !== undefined)\n      {\n        destObj[it] = new window[srcObj[it].constructor.name](srcObj[it].length);\n        allocateArray(destObj[it], srcObj[it]);\n        continue;\n      }\n      if(isObject(srcObj[it]) && srcObj[it] !== null)\n      {\n        destObj[it] = {};\n        copyObject(destObj[it], srcObj[it]);\n      }\n    }\n  }\n  else\n  {\n    throw new Error(\"[CType] 'copyObject' function: set a non-empty parameter: [object]\");\n  }\n}\n\nfunction allocateArray(destArr, srcArr)\n{\n  let l = srcArr.length;\n\n  if(destArr)\n  {\n    if(!isObject(destArr) || destArr.length === undefined || destArr === null)\n    {\n      throw new Error(\"[CType] 'allocateArray' function: \" + \"a destination object '\" + destArr.toString() + \"' must have an array type\");\n    }\n\n    for(let it = 0; it < l; ++it)\n    {\n      if(isObject(srcArr[it]) && srcArr[it] !== null && srcArr[it].length !== undefined)\n      {\n        destArr[it] = new window[srcArr[it].constructor.name](srcArr[it].length);\n        allocateArray(destArr[it], srcArr[it]);\n        continue;\n      }\n      if(isObject(srcArr[it]) && srcArr[it] !== null)\n      {\n        destArr[it] = {};\n        copyObject(destArr[it], srcArr[it]);\n      }\n    }\n  }\n  else\n  {\n    throw new Error(\"[CType] 'allocateArray' function: set a non-empty parameter: [array]\");\n  }\n}\n\n/**\n * Gets a size of source structure\n * @param  {Object} srcStruct Source structure\n * @param  {Number} totalSize Total size in bytes\n */\nfunction getStructSize(srcStruct, totalSize)\n{\n  let isEmpty = false;\n\n  for(let field in srcStruct)\n  {\n    let fieldValue = srcStruct[field];\n    isEmpty        = false;\n\n    if(!isObject(fieldValue) && !fieldValue.BYTES_PER_ELEMENT && !srcStruct.byteLength)\n    {\n      throw new Error(\"[ctype] 'struct' function: invalid structure field '\" + field + \":\" + fieldValue + \"'\");\n    }\n\n    if(!fieldValue.BYTES_PER_ELEMENT)\n    {\n      if(fieldValue.length)\n      {\n        for(let i = 0; i < fieldValue.length; ++i)\n        {\n          if(isObject(fieldValue[i]))\n          {\n            getStructSize(fieldValue[i], totalSize);\n          }\n        }\n      }\n      else\n      {\n        if(isObject(fieldValue))\n        {\n          getStructSize(fieldValue, totalSize);\n        }\n      }\n    }\n    else\n    {\n      totalSize.value += fieldValue.byteLength;\n    }\n  }\n\n  if(isEmpty)\n  {\n    throw new Error(\"[ctype] 'struct' function: invalid structure field - an empty object\");\n  }\n}\n/**\n * uint8(Uint8Array) type byte length\n * @type {Number}\n */\nexport const UINT8_SIZE  = Uint8Array.BYTES_PER_ELEMENT;\n/**\n * uint16(Uint16Array) type byte length\n * @type {Number}\n */\nexport const UINT16_SIZE = Uint16Array.BYTES_PER_ELEMENT;\n/**\n * uint32(Uint32Array) type byte length\n * @type {Number}\n */\nexport const UINT32_SIZE   = Uint32Array.BYTES_PER_ELEMENT;\n/**\n * int8(Int8Array) type byte length\n * @type {Number}\n */\nexport const INT8_SIZE   = Int8Array.BYTES_PER_ELEMENT;\n/**\n * int16(Int16Array) type byte length\n * @type {Number}\n */\nexport const INT16_SIZE  = Int16Array.BYTES_PER_ELEMENT;\n/**\n * int32(Uint32Array) type byte length\n * @type {Number}\n */\nexport const INT32_SIZE    = Int32Array.BYTES_PER_ELEMENT;\n/**\n * float32(Float32Array) type byte length\n * @type {Number}\n */\nexport const FLOAT32_SIZE  = Float32Array.BYTES_PER_ELEMENT;\n/**\n * float64(Float64Array) type byte length\n * @type {Number}\n */\nexport const FLOAT64_SIZE = Float64Array.BYTES_PER_ELEMENT;\n/**\n * Returns new 'unsigned char array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Uint8Array}      Unsigned 8-byte integer array\n */\nexport function uint8(size = 1)\n{\n  let ctype = new Uint8Array(size);\n  return ctype;\n}\n/**\n * Returns new 'unsigned short array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Uint16Array}     Unsigned 16-byte integer array\n */\nexport function uint16(size = 1)\n{\n  let ctype = new Uint16Array(size);\n  return ctype;\n}\n/**\n * Returns new 'unsigned int array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Uint32Array}     Unsigned 32-byte integer array\n */\nexport function uint32(size = 1)\n{\n  let ctype = new Uint32Array(size);\n  return ctype;\n}\n/**\n * Returns new 'char array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Int8Array}       Signed 8-byte integer array\n */\nexport function int8(size = 1)\n{\n  let ctype = new Int8Array(size);\n  return ctype;\n}\n/**\n * Returns new 'short array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Int16Array}      Signed 16-byte integer array\n */\nexport function int16(size = 1)\n{\n  let ctype = new Int16Array(size);\n  return ctype;\n}\n/**\n * Returns new 'int array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Int32Array}      Signed 32-byte integer array\n */\nexport function int32(size = 1)\n{\n  let ctype = new Int32Array(size);\n  return ctype;\n}\n/**\n * Returns new 'float array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Float32Array}    Signed 32-byte floating point array\n */\nexport function float32(size = 1)\n{\n  let ctype = new Float32Array(size);\n  return ctype;\n}\n/**\n * Returns new 'double array[size]' C equivalent\n * @param  {Number} size=1 Array length\n * @return {Float64Array}    Signed 64-byte floating point array\n */\nexport function float64(size = 1)\n{\n  let ctype = new Float64Array(size);\n  return ctype;\n}\n/**\n * Returns new 'struct s[size]' C equivalent with 'byteLength' field is a total size of structure\n * @param  {Object} srcStruct Empty source object\n * @param  {Number} size=1    Array length\n * @return {Object}           Object structure with typed fields\n */\nexport function struct(srcStruct, size = 1)\n{\n  if(!isObject(srcStruct) || (typeof size !== \"number\"))\n  {\n    throw new Error(\"[ctype] 'struct' function: invalid arguments (Object srcStruct, Number size)\");\n  }\n\n  let totalSize = { value: 0 };\n\n  getStructSize(srcStruct, totalSize);\n\n  if(size > 1)\n  {\n    let dstStructs = [];\n    for(let i = 0; i < size; ++i)\n    {\n      dstStructs[i] = {};\n      copyObject(dstStructs[i], srcStruct);\n\n      Object.defineProperty(dstStructs[i], \"byteLength\",\n      {\n        value       : totalSize.value,\n        writable    : false,\n        enumerable  : true,\n        configurable: false\n      });\n    }\n    return dstStructs;\n  }\n  else\n  {\n    let dstStruct = {};\n    copyObject(dstStruct, srcStruct);\n\n    Object.defineProperty(dstStruct, \"byteLength\",\n    {\n      value       : totalSize.value,\n      writable    : false,\n      enumerable  : true,\n      configurable: false\n    });\n\n    return dstStruct;\n  }\n\n  return null;\n}\n/**\n * Sets data from a source buffer to a destination structure\n * @param {Object}      dstStruct    Destination structure\n * @param {ArrayBuffer} srcBuffer    Source buffer\n * @param {Number}      totalOffset  Total offset in bytes\n * @param {Boolean}     littleEndian Little-endian bytes order flag\n */\nfunction setBufferToStruct(dstStruct, srcBuffer, totalOffset, littleEndian)\n{\n  for(let field in dstStruct)\n  {\n    let fieldValue = dstStruct[field];\n\n    if(fieldValue.constructor.name === \"Array\")\n    {\n      let l = fieldValue.length;\n\n      for(let i = 0; i < l; ++i)\n      {\n        setBufferToStruct(fieldValue[i], srcBuffer, totalOffset, littleEndian);\n      }\n    }\n    else\n    {\n      if(fieldValue.constructor.name === \"Object\")\n      {\n        setBufferToStruct(fieldValue, srcBuffer, totalOffset, littleEndian);\n      }\n      else\n      {\n        let l = fieldValue.length;\n\n        switch(fieldValue.constructor.name)\n        {\n          case \"Uint8Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getUint8(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Uint16Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getUint16(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Uint32Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getUint32(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Int8Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getInt8(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Int16Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getInt16(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Int32Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getInt32(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Float32Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getFloat32(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Float64Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              fieldValue[i] = srcBuffer.getFloat64(totalOffset.value, littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n        }\n      }\n    }\n  }\n}\n/**\n * Sets data from source structure to destination buffer\n * @param  {ArrayBuffer} dstBuffer    Destination buffer\n * @param  {Object}      srcStruct    Source structure\n * @param  {Number}      totalOffset  Total offset in bytes\n * @param  {Boolean}     littleEndian Little-endian bytes order flag\n */\nfunction setStructToBuffer(dstBuffer, srcStruct, totalOffset, littleEndian)\n{\n  for(let field in srcStruct)\n  {\n    let fieldValue = srcStruct[field];\n\n    if(fieldValue.constructor.name === \"Array\")\n    {\n      let l = fieldValue.length;\n\n      for(let i = 0; i < l; ++i)\n      {\n        setStructToBuffer(dstBuffer, fieldValue[i], totalOffset, littleEndian);\n      }\n    }\n    else\n    {\n      if(fieldValue.constructor.name === \"Object\")\n      {\n        setStructToBuffer(dstBuffer, fieldValue, totalOffset, littleEndian);\n      }\n      else\n      {\n        let l = fieldValue.length;\n\n        switch(fieldValue.constructor.name)\n        {\n          case \"Uint8Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setUint8(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Uint16Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setUint16(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Uint32Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setUint32(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Int8Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setInt8(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Int16Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setInt16(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Int32Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setInt32(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Float32Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setFloat32(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n\n          case \"Float64Array\":\n            for(let i = 0; i < l; ++i)\n            {\n              dstBuffer.setFloat64(totalOffset.value, fieldValue[i], littleEndian && true);\n              totalOffset.value += fieldValue.BYTES_PER_ELEMENT;\n            }\n          break;\n        }\n      }\n    }\n  }\n}\n/**\n * Copies a source buffer to a destination structure\n * @param  {ArrayBuffer}     srcBuffer         Source buffer\n * @param  {Object|Object[]} dstStruct         Destination structure or array of structures\n * @param  {Number}          byteOffset=0      Byte offset from a start of a source buffer\n * @param  {Boolean}         littleEndian=true Little-endian bytes order flag\n * @return {Object}                            Destination structure reference\n */\nexport function bufferToStruct(srcBuffer, dstStruct, byteOffset = 0, littleEndian = true)\n{\n  if(!isObject(dstStruct) || !(srcBuffer instanceof ArrayBuffer) || (typeof byteOffset !== \"number\") || (typeof littleEndian !== \"boolean\"))\n  {\n    throw new Error(\"[ctype] 'bufferToStruct' function: invalid arguments in the signature (ArrayBuffer srcBuffer, Object dstStruct, Number byteOffset = 0, Boolean littleEndian = true)\");\n  }\n\n  let srcBuf;\n\n  try\n  {\n    srcBuf = new DataView(srcBuffer, byteOffset);\n  }\n  catch(e)\n  {\n    console.log(e);\n    return;\n  }\n\n  let totalOffset  = { value: 0 };\n\n  setBufferToStruct(dstStruct, srcBuf, totalOffset, littleEndian);\n\n  return dstStruct;\n}\n/**\n * Copies a source structure to a destination buffer\n * @param  {Object|Object[]} srcStruct      Source structure or array of structures\n * @param  {ArrayBuffer} existedBuffer=null Existed buffer\n * @param  {Number} byteOffset=0            Byte offset from a start of a source buffer\n * @param  {Number} littleEndian=true       Little-endian bytes order flag\n * @return {ArrayBuffer}                    Destination buffer reference\n */\nexport function structToBuffer(srcStruct, existedBuffer = null, byteOffset = 0, littleEndian = true)\n{\n  if(!isObject(srcStruct) ||\n     (!(existedBuffer instanceof ArrayBuffer) && existedBuffer !== null) ||\n     (typeof byteOffset !== \"number\") ||\n     (typeof littleEndian !== \"boolean\"))\n  {\n    throw new Error(\"[ctype] 'structToBuffer' function: invalid arguments in the signature (Object srcStruct, ArrayBuffer existedBuffer = null, Number byteOffset = 0, Boolean littleEndian = true)\");\n  }\n\n  let totalOffset = { value: 0 };\n  let arrayBuffer, dstBuffer;\n\n  if(existedBuffer === null)\n  {\n    if(srcStruct instanceof Array)\n    {\n      let l = srcStruct.length;\n\n      arrayBuffer = new ArrayBuffer(srcStruct[0].byteLength * l);\n      dstBuffer   = new DataView   (arrayBuffer);\n    }\n    else\n    {\n      arrayBuffer = new ArrayBuffer(srcStruct.byteLength);\n      dstBuffer   = new DataView   (arrayBuffer);\n    }\n\n    setStructToBuffer(dstBuffer, srcStruct, totalOffset, littleEndian);\n  }\n  else\n  {\n    dstBuffer = new DataView(existedBuffer, byteOffset);\n\n    setStructToBuffer(dstBuffer, srcStruct, totalOffset, littleEndian);\n  }\n\n  return dstBuffer.buffer;\n}\n/**\n * Sets data from a source typed array to a destination buffer\n * @param {Array} srcArray        Source typed array\n * @param {ArrayBuffer} dstBuffer Destination buffer\n * @param {Number} length         Byte length for copying from a source typed array\n * @param {Number} byteOffset     Byte offset from a start of a source typed array\n * @param {Number} totalOffset    Total offset in bytes\n * @param {Boolean} littleEndian  Little-endian bytes order flag\n */\nfunction setArrayToBuffer(srcArray, dstBuffer, length, totalOffset, littleEndian)\n{\n  let l;\n  let i = totalOffset.value / srcArray.BYTES_PER_ELEMENT;\n\n  if(isNaN(length))\n  {\n    if(dstBuffer.byteLength > srcArray.byteLength ||\n       dstBuffer.byteLength === srcArray.byteLength)\n    {\n      l = srcArray.length;\n    }\n    else\n    {\n      l = dstBuffer.byteLength / srcArray.BYTES_PER_ELEMENT;\n    }\n  }\n  else\n  {\n    l = length / srcArray.BYTES_PER_ELEMENT + totalOffset.value / srcArray.BYTES_PER_ELEMENT;\n  }\n\n  switch(srcArray.constructor.name)\n  {\n    case \"Uint8Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setUint8(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Uint16Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setUint16(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Uint32Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setUint32(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Int8Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setInt8(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Int16Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setInt16(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Int32Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setInt32(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Float32Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setFloat32(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Float64Array\":\n      for(; i < l; ++i)\n      {\n        dstBuffer.setFloat64(totalOffset.value, srcArray[i], littleEndian && true);\n        totalOffset.value += srcArray.BYTES_PER_ELEMENT;\n      }\n    break;\n  }\n}\n/**\n * Sets data from a source buffer array to a destination typed array\n * @param {ArrayBuffer} srcBuffer Sorce buffer\n * @param {Array} dstArray        Destination typed array\n * @param {Number} length         Byte length for copying from a source buffer\n * @param {Number} totalOffset    Total offset in bytes\n * @param {Boolean} littleEndian  Little-endian bytes order flag\n */\nfunction setBufferToArray(srcBuffer, dstArray, length, totalOffset, littleEndian)\n{\n  let l;\n\n  if(isNaN(length))\n  {\n    if(srcBuffer.byteLength > dstArray.byteLength ||\n       srcBuffer.byteLength === dstArray.byteLength)\n    {\n      l = dstArray.length;\n    }\n    else\n    {\n      l = srcBuffer.byteLength / dstArray.BYTES_PER_ELEMENT;\n    }\n  }\n  else\n  {\n    l = length / dstArray.BYTES_PER_ELEMENT;\n  }\n\n  switch(dstArray.constructor.name)\n  {\n    case \"Uint8Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getUint8(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Uint16Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getUint16(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Uint32Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getUint32(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Int8Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getInt8(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Int16Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getInt16(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Int32Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getInt32(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Float32Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getFloat32(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n\n    case \"Float64Array\":\n      for(let i = 0; i < l; ++i)\n      {\n        dstArray[i] = srcBuffer.getFloat64(totalOffset.value, littleEndian && true);\n        totalOffset.value += dstArray.BYTES_PER_ELEMENT;\n      }\n    break;\n  }\n}\n/**\n * Copies a source buffer to a destination typed array\n * @param  {ArrayBuffer} srcBuffer         Source buffer\n * @param  {Array}       dstArray          Destination typed array\n * @param  {Number}      byteOffset=0      Byte offset from a start of a source buffer\n * @param  {Number}      length=NaN        Byte length for copying from a source buffer\n * @param  {Boolean}     littleEndian=true Little-endian bytes order flag\n * @return {Array}                         Destination array reference\n */\nexport function bufferToArray(srcBuffer, dstArray, byteOffset = 0, length = NaN, littleEndian = true)\n{\n  if(!dstArray.BYTES_PER_ELEMENT || !(srcBuffer instanceof ArrayBuffer) ||\n     (typeof length !== \"number\" && !isNaN(length)) ||\n     (typeof byteOffset !== \"number\") || (typeof littleEndian !== \"boolean\"))\n  {\n    throw new Error(\"[ctype] 'bufferToArray' function: invalid arguments in the signature (ArrayBuffer srcBuffer, TypedArray dstArray, Number length = NaN, NumberNumber offset = 0, Boolean littleEndian = true)\");\n  }\n\n  if(length < 0)\n  {\n    throw new Error(\"[ctype] 'bufferToArray' function: the copying byte length must be a positive value\");\n  }\n\n  let srcBuf      = new DataView(srcBuffer, byteOffset);\n  let totalOffset = { value: 0 };\n\n  setBufferToArray(srcBuf, dstArray, length, totalOffset, littleEndian);\n\n  return dstArray;\n}\n/**\n * Copies a source typed array to a destination buffer\n * @param  {Array} srcArray                 Source typed array\n * @param  {ArrayBuffer} existedBuffer=null DesExisted buffer\n * @param  {Number} byteOffset=0            Byte offset from a start of a source typed array\n * @param  {Number} length=NaN              Byte length for copying from a source typed array\n * @param  {Boolean} littleEndian=true      Little-endian bytes order flag\n * @return {ArrayBuffer}                    Destination buffer reference\n */\nexport function arrayToBuffer(srcArray, existedBuffer = null, byteOffset = 0, length = NaN, littleEndian = true)\n{\n  if(!srcArray.BYTES_PER_ELEMENT ||\n     (!(existedBuffer instanceof ArrayBuffer) && existedBuffer !== null) ||\n     (typeof length !== \"number\") ||\n     (typeof byteOffset !== \"number\") ||\n     (typeof littleEndian !== \"boolean\"))\n  {\n    throw new Error(\"[ctype] 'arrayToBuffer' function: invalid arguments in the signature (TypedArray srcArray, ArrayBuffer existedBuffer = null, Number length = NaN, Number byteOffset = 0, Boolean littleEndian = true)\");\n  }\n\n  if(length < 0)\n  {\n    throw new Error(\"[ctype] 'arrayToBuffer' function: the copying byte length must be a positive value\");\n  }\n\n  let totalOffset = { value: byteOffset };\n  let arrayBuffer, dstBuffer;\n\n  if(existedBuffer === null)\n  {\n    arrayBuffer = new ArrayBuffer(srcArray.byteLength);\n    dstBuffer   = new DataView   (arrayBuffer);\n\n    setArrayToBuffer(srcArray, dstBuffer, length, totalOffset, littleEndian);\n  }\n  else\n  {\n    dstBuffer = new DataView(existedBuffer);\n\n    setArrayToBuffer(srcArray, dstBuffer, length, totalOffset, littleEndian);\n  }\n\n  return dstBuffer.buffer;\n}\n"
+  },
+  {
+    "__docId__": 1,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "isObject",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~isObject",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": "Tests an variable is being an JavaScript object type",
+    "lineNumber": 12,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "object",
+        "description": "Testing object value"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Boolean"
+      ],
+      "spread": false,
+      "description": "Is a variable a JavaScript object"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 2,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "copyObject",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~copyObject",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": "Does deep copy of an object",
+    "lineNumber": 21,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "destObj",
+        "description": "Destination object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcObj",
+        "description": "Source object"
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 3,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "allocateArray",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~allocateArray",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 55,
+    "undocument": true,
+    "params": [
+      {
+        "name": "destArr",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "srcArr",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 4,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "getStructSize",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~getStructSize",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": "Gets a size of source structure",
+    "lineNumber": 92,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcStruct",
+        "description": "Source structure"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "totalSize",
+        "description": "Total size in bytes"
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 5,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "UINT8_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~UINT8_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{UINT8_SIZE}",
+    "description": "uint8(Uint8Array) type byte length",
+    "lineNumber": 141,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 6,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "UINT16_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~UINT16_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{UINT16_SIZE}",
+    "description": "uint16(Uint16Array) type byte length",
+    "lineNumber": 146,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 7,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "UINT32_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~UINT32_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{UINT32_SIZE}",
+    "description": "uint32(Uint32Array) type byte length",
+    "lineNumber": 151,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 8,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "INT8_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~INT8_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{INT8_SIZE}",
+    "description": "int8(Int8Array) type byte length",
+    "lineNumber": 156,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 9,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "INT16_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~INT16_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{INT16_SIZE}",
+    "description": "int16(Int16Array) type byte length",
+    "lineNumber": 161,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 10,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "INT32_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~INT32_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{INT32_SIZE}",
+    "description": "int32(Uint32Array) type byte length",
+    "lineNumber": 166,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 11,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "FLOAT32_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~FLOAT32_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{FLOAT32_SIZE}",
+    "description": "float32(Float32Array) type byte length",
+    "lineNumber": 171,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 12,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "FLOAT64_SIZE",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~FLOAT64_SIZE",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{FLOAT64_SIZE}",
+    "description": "float64(Float64Array) type byte length",
+    "lineNumber": 176,
+    "type": {
+      "nullable": null,
+      "types": [
+        "Number"
+      ],
+      "spread": false,
+      "description": null
+    }
+  },
+  {
+    "__docId__": 13,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "uint8",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~uint8",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{uint8}",
+    "description": "Returns new 'unsigned char array[size]' C equivalent",
+    "lineNumber": 182,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Uint8Array"
+      ],
+      "spread": false,
+      "description": "Unsigned 8-byte integer array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 14,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "uint16",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~uint16",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{uint16}",
+    "description": "Returns new 'unsigned short array[size]' C equivalent",
+    "lineNumber": 192,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Uint16Array"
+      ],
+      "spread": false,
+      "description": "Unsigned 16-byte integer array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 15,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "uint32",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~uint32",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{uint32}",
+    "description": "Returns new 'unsigned int array[size]' C equivalent",
+    "lineNumber": 202,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Uint32Array"
+      ],
+      "spread": false,
+      "description": "Unsigned 32-byte integer array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 16,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "int8",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~int8",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{int8}",
+    "description": "Returns new 'char array[size]' C equivalent",
+    "lineNumber": 212,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Int8Array"
+      ],
+      "spread": false,
+      "description": "Signed 8-byte integer array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 17,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "int16",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~int16",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{int16}",
+    "description": "Returns new 'short array[size]' C equivalent",
+    "lineNumber": 222,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Int16Array"
+      ],
+      "spread": false,
+      "description": "Signed 16-byte integer array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 18,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "int32",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~int32",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{int32}",
+    "description": "Returns new 'int array[size]' C equivalent",
+    "lineNumber": 232,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Int32Array"
+      ],
+      "spread": false,
+      "description": "Signed 32-byte integer array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 19,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "float32",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~float32",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{float32}",
+    "description": "Returns new 'float array[size]' C equivalent",
+    "lineNumber": 242,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Float32Array"
+      ],
+      "spread": false,
+      "description": "Signed 32-byte floating point array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 20,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "float64",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~float64",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{float64}",
+    "description": "Returns new 'double array[size]' C equivalent",
+    "lineNumber": 252,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Float64Array"
+      ],
+      "spread": false,
+      "description": "Signed 64-byte floating point array"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 21,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "struct",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~struct",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{struct}",
+    "description": "Returns new 'struct s[size]' C equivalent with 'byteLength' field is a total size of structure",
+    "lineNumber": 263,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcStruct",
+        "description": "Empty source object"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "1",
+        "defaultRaw": 1,
+        "name": "size",
+        "description": "Array length"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Object"
+      ],
+      "spread": false,
+      "description": "Object structure with typed fields"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 22,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "setBufferToStruct",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~setBufferToStruct",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": "Sets data from a source buffer to a destination structure",
+    "lineNumber": 317,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "dstStruct",
+        "description": "Destination structure"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcBuffer",
+        "description": "Source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "totalOffset",
+        "description": "Total offset in bytes"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 23,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "setStructToBuffer",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~setStructToBuffer",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": "Sets data from source structure to destination buffer",
+    "lineNumber": 419,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "dstBuffer",
+        "description": "Destination buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcStruct",
+        "description": "Source structure"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "totalOffset",
+        "description": "Total offset in bytes"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 24,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "bufferToStruct",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~bufferToStruct",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{bufferToStruct}",
+    "description": "Copies a source buffer to a destination structure",
+    "lineNumber": 522,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcBuffer",
+        "description": "Source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Object",
+          "Object[]"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "dstStruct",
+        "description": "Destination structure or array of structures"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "0",
+        "defaultRaw": 0,
+        "name": "byteOffset",
+        "description": "Byte offset from a start of a source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "true",
+        "defaultRaw": true,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Object"
+      ],
+      "spread": false,
+      "description": "Destination structure reference"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 25,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "structToBuffer",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~structToBuffer",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{structToBuffer}",
+    "description": "Copies a source structure to a destination buffer",
+    "lineNumber": 555,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Object",
+          "Object[]"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcStruct",
+        "description": "Source structure or array of structures"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "null",
+        "defaultRaw": null,
+        "name": "existedBuffer",
+        "description": "Existed buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "0",
+        "defaultRaw": 0,
+        "name": "byteOffset",
+        "description": "Byte offset from a start of a source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "true",
+        "defaultRaw": true,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ArrayBuffer"
+      ],
+      "spread": false,
+      "description": "Destination buffer reference"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 26,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "setArrayToBuffer",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~setArrayToBuffer",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": "Sets data from a source typed array to a destination buffer",
+    "lineNumber": 603,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Array"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcArray",
+        "description": "Source typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "dstBuffer",
+        "description": "Destination buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "length",
+        "description": "Byte length for copying from a source typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "byteOffset",
+        "description": "Byte offset from a start of a source typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "totalOffset",
+        "description": "Total offset in bytes"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 27,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "setBufferToArray",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~setBufferToArray",
+    "access": null,
+    "export": false,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": null,
+    "description": "Sets data from a source buffer array to a destination typed array",
+    "lineNumber": 700,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcBuffer",
+        "description": "Sorce buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Array"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "dstArray",
+        "description": "Destination typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "length",
+        "description": "Byte length for copying from a source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "totalOffset",
+        "description": "Total offset in bytes"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "generator": false
+  },
+  {
+    "__docId__": 28,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "bufferToArray",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~bufferToArray",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{bufferToArray}",
+    "description": "Copies a source buffer to a destination typed array",
+    "lineNumber": 797,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcBuffer",
+        "description": "Source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Array"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "dstArray",
+        "description": "Destination typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "0",
+        "defaultRaw": 0,
+        "name": "byteOffset",
+        "description": "Byte offset from a start of a source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "NaN",
+        "defaultRaw": "NaN",
+        "name": "length",
+        "description": "Byte length for copying from a source buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "true",
+        "defaultRaw": true,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "Array"
+      ],
+      "spread": false,
+      "description": "Destination array reference"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 29,
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "arrayToBuffer",
+    "memberof": "src/ctype.js",
+    "longname": "src/ctype.js~arrayToBuffer",
+    "access": null,
+    "export": true,
+    "importPath": "ctype-js/src/ctype.js",
+    "importStyle": "{arrayToBuffer}",
+    "description": "Copies a source typed array to a destination buffer",
+    "lineNumber": 827,
+    "params": [
+      {
+        "nullable": null,
+        "types": [
+          "Array"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "srcArray",
+        "description": "Source typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "ArrayBuffer"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "null",
+        "defaultRaw": null,
+        "name": "existedBuffer",
+        "description": "DesExisted buffer"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "0",
+        "defaultRaw": 0,
+        "name": "byteOffset",
+        "description": "Byte offset from a start of a source typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Number"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "NaN",
+        "defaultRaw": "NaN",
+        "name": "length",
+        "description": "Byte length for copying from a source typed array"
+      },
+      {
+        "nullable": null,
+        "types": [
+          "Boolean"
+        ],
+        "spread": false,
+        "optional": false,
+        "defaultValue": "true",
+        "defaultRaw": true,
+        "name": "littleEndian",
+        "description": "Little-endian bytes order flag"
+      }
+    ],
+    "return": {
+      "nullable": null,
+      "types": [
+        "ArrayBuffer"
+      ],
+      "spread": false,
+      "description": "Destination buffer reference"
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 31,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Infinity",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 32,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~NaN",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 33,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~undefined",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 34,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~null",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 35,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 36,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 37,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 38,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 39,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 40,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 41,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Symbol",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 42,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Error",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 43,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~EvalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 44,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~InternalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 45,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RangeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 46,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ReferenceError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 47,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~SyntaxError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 48,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~TypeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 49,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~URIError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 50,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 51,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 52,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Date",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 53,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~String",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 54,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~string",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 55,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RegExp",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 56,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 57,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 58,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 59,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8ClampedArray",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 60,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 61,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 62,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 63,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 64,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 65,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float64Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 66,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Map",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 67,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Set",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 68,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakMap",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 69,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakSet",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 70,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ArrayBuffer",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 71,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~DataView",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 72,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~JSON",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 73,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Promise",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 74,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Generator",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 75,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~GeneratorFunction",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 76,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Reflect",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 77,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Proxy",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 79,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "CanvasRenderingContext2D",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~CanvasRenderingContext2D",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 80,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DocumentFragment",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~DocumentFragment",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 81,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Element",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Element",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 82,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Event",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Event",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 83,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Node",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Node",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 84,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NodeList",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~NodeList",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 85,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "XMLHttpRequest",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~XMLHttpRequest",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "__docId__": 86,
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "AudioContext",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/AudioContext",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~AudioContext",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  }
+]

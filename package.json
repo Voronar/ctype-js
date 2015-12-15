@@ -1,0 +1,29 @@
+{
+  "name": "ctype-js",
+  "version": "0.0.1",
+  "description": "JavaScript library for easy working with C data types like typed arrays and structs.",
+  "main": "src/main.js",
+  "author": "Kirill A. Khalitov",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs": "*",
+    "babel-plugin-transform-es2015-parameters": "*",
+    "babel-plugin-transform-es2015-block-scoping": "*",
+    "babelify": "*",
+    "browserify": "*",
+    "gulp": "*",
+    "gulp-esdoc": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-uglify": "*",
+    "vinyl-buffer": "*",
+    "vinyl-source-stream": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Voronar/ctype-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Voronar/ctype-js/issues"
+  },
+  "homepage": "https://github.com/Voronar/ctype-js#readme"
+}
