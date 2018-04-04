@@ -1,6 +1,9 @@
 # ctype
 JavaScript library for easy working with C data types like primitive type arrays and structures.
 
+> ## ⚠️ Warning ⚠️
+> ## It is very old code and I need to do a big refactoring as soon as it be needed.
+
 > **Exported library(ES5) requirements:**
 > - typed arrays, ```ArrayBuffer```, ```DataView```
 
